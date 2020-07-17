@@ -111,26 +111,23 @@ module Rswag
 
           parameters.select { |p| p[:in] == :query }.each_with_index do |p, i|
             path_template.concat(i.zero? ? '?' : '&')
-            path_template.concat(build_query_string_part(p, example.send(p[:name])))
+            path_template.concat(build_query_string_part(p, p[:name], example.send(p[:name])))
           end
         end
       end
 
-      def build_query_string_part(param, value)
-        name = param[:name]
-        return "#{name}=#{value}" unless param[:type].to_sym == :array
-
-        case param[:collectionFormat]
-        when :ssv
-          "#{name}=#{value.join(' ')}"
-        when :tsv
-          "#{name}=#{value.join('\t')}"
-        when :pipes
-          "#{name}=#{value.join('|')}"
-        when :multi
-          value.map { |v| "#{name}=#{v}" }.join('&')
+      def build_query_string_part(param, name, value)
+        case param[:type].to_sym
+        when :array
+          value.each_with_index.map { |v, i|
+            build_query_string_part(param[:items], "#{name}[#{i}]", v)
+          }.join("&")
+        when :object
+          value.map { |k, v|
+            build_query_string_part(param[:properties][k.to_sym], "#{name}[#{k}]", v)
+          }.join("&")
         else
-          "#{name}=#{value.join(',')}" # csv is default
+          "#{name}=#{value}"
         end
       end
 
