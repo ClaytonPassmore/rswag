@@ -119,8 +119,8 @@ module Rswag
       def build_query_string_part(param, name, value)
         case param[:type].to_sym
         when :array
-          value.each_with_index.map { |v, i|
-            build_query_string_part(param[:items], "#{name}[#{i}]", v)
+          value.map { |v|
+            build_query_string_part(param[:items], "#{name}[]", v)
           }.join("&")
         when :object
           value.map { |k, v|
