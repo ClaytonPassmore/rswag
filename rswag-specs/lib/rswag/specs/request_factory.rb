@@ -124,7 +124,7 @@ module Rswag
           }.join("&")
         when :object
           value.map { |k, v|
-            build_query_string_part(param[:properties][k.to_sym], "#{name}[#{k}]", v)
+            build_query_string_part(param.key?(:properties) ? param[:properties][k.to_sym] : {}, "#{name}[#{k}]", v)
           }.join("&")
         else
           "#{name}=#{value}"
