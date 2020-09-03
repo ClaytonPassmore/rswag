@@ -117,7 +117,7 @@ module Rswag
       end
 
       def build_query_string_part(param, name, value)
-        case param[:type].to_sym
+        case param[:type]&.to_sym
         when :array
           value.map { |v|
             build_query_string_part(param[:items], "#{name}[]", v)
